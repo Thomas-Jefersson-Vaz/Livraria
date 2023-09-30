@@ -152,6 +152,16 @@ public class MainSceneController {
     }
     @FXML
     void btnResetClicked(ActionEvent event){
-
+        result.setText("");
+        autor.setText("");
+        nacionalidade.setText("");
+        editora.setText("");
+        siteeditora.setText("");
+        paiseditora.setText("");
+        categoria.setText("");
+        titulo.setText("");
+        anoedicao.setText("");
+        isbn.setText("");
+        primeiraversao.setText("");
     }
 }
