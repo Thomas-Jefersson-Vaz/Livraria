@@ -52,72 +52,87 @@ public class MainSceneController {
             String sql2 = "INSERT INTO editora(nome_editora,site_editora,pais_de_origem) VALUES (?,?,?)";
             String sql3 = "INSERT INTO categoria(desc_categoria) VALUES (?)";
             String sql4 = "INSERT INTO livro(titulo_livro,ano_da_edicao_livro,ISBN_livro,ID_autor,ID_editora,ID_categoria) VALUES (?,?,?,?,?,?)";
+            String sql5 = "INSERT INTO autoria(ID_autor,ID_livro,ano_da_primeira_versão) VALUES (?,?,?)";
 
             // Cria um PreparedStatement para a consulta SQL
-            PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            PreparedStatement preparedStatement2 = connection.prepareStatement(sql2,Statement.RETURN_GENERATED_KEYS);
-            PreparedStatement preparedStatement3 = connection.prepareStatement(sql3,Statement.RETURN_GENERATED_KEYS);
-            PreparedStatement preparedStatement4 = connection.prepareStatement(sql4,Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement autorPreparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement editoraPreparedStatement = connection.prepareStatement(sql2,Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement categoriaPreparedStatement = connection.prepareStatement(sql3,Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement livroPreparedStatement = connection.prepareStatement(sql4,Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement autoriaPreparedStatement = connection.prepareStatement(sql5,Statement.RETURN_GENERATED_KEYS);
             //autor
             String V_Autor = autor.getText();
             String V_Nacionalidade = nacionalidade.getText();
 
-            preparedStatement.setString(1, V_Autor);
-            preparedStatement.setString(2, V_Nacionalidade);
+            autorPreparedStatement.setString(1, V_Autor);
+            autorPreparedStatement.setString(2, V_Nacionalidade);
 
             //editora
             String V_editora = editora.getText();
             String V_siteeditora = siteeditora.getText();
             String V_paiseditora = paiseditora.getText();
 
-            preparedStatement2.setString(1, V_editora);
-            preparedStatement2.setString(2, V_siteeditora);
-            preparedStatement2.setString(3, V_paiseditora);
+            editoraPreparedStatement.setString(1, V_editora);
+            editoraPreparedStatement.setString(2, V_siteeditora);
+            editoraPreparedStatement.setString(3, V_paiseditora);
             //categoria
             String V_categoria = categoria.getText();
 
-            preparedStatement3.setString(1, V_categoria);
+            categoriaPreparedStatement.setString(1, V_categoria);
             //livro
             String V_titulo = titulo.getText();
             String V_anoedicao = anoedicao.getText();
             String V_isbn = isbn.getText();
 
 
-            preparedStatement4.setString(1, V_titulo);
-            preparedStatement4.setString(2, V_anoedicao);
-            preparedStatement4.setString(3, V_isbn);
+            livroPreparedStatement.setString(1, V_titulo);
+            livroPreparedStatement.setString(2, V_anoedicao);
+            livroPreparedStatement.setString(3, V_isbn);
+            //autoria
+            String V_primeiraversao = primeiraversao.getText();
+
+            autoriaPreparedStatement.setString(3, V_primeiraversao);
             // Insere os dados
-            int linhasAfetadas = preparedStatement.executeUpdate();
-            int linhasAfetadas2 = preparedStatement2.executeUpdate();
-            int linhasAfetadas3 = preparedStatement3.executeUpdate();
+            int linhasAfetadas = autorPreparedStatement.executeUpdate();
+            int linhasAfetadas2 = editoraPreparedStatement.executeUpdate();
+            int linhasAfetadas3 = categoriaPreparedStatement.executeUpdate();
             //pegar as chaves estrangeiras
-            ResultSet V_idautor = preparedStatement.getGeneratedKeys();
+            ResultSet V_idautor = autorPreparedStatement.getGeneratedKeys();
             long autorID = -1;
             if(V_idautor.next()){
                 autorID = V_idautor.getLong(1);
             }
-            preparedStatement4.setLong(4, autorID);
+            livroPreparedStatement.setLong(4, autorID);
             
-            ResultSet V_idedi = preparedStatement2.getGeneratedKeys();
+            ResultSet V_idedi = editoraPreparedStatement.getGeneratedKeys();
             long ediID = -1;
             if(V_idedi.next()){
                 ediID = V_idedi.getLong(1);
             }
-            preparedStatement4.setLong(5, ediID);
-            
-            ResultSet V_idcat = preparedStatement3.getGeneratedKeys();
+            livroPreparedStatement.setLong(5, ediID);
+
+            ResultSet V_idcat = categoriaPreparedStatement.getGeneratedKeys();
             long catID = -1;
             if(V_idcat.next()){
                 catID = V_idcat.getLong(1);
             }
-            preparedStatement4.setLong(6, catID);
-
-
+            livroPreparedStatement.setLong(6, catID);
 
             // //insere os dados do livro
-            int linhasAfetadas4 = preparedStatement4.executeUpdate();
+            int linhasAfetadas4 = livroPreparedStatement.executeUpdate();
+            //chaves estrangeiras autoria
+            autoriaPreparedStatement.setLong(1, autorID);
 
-            if (linhasAfetadas > 0 && linhasAfetadas2 > 0 && linhasAfetadas3 > 0 && linhasAfetadas4 > 0) {
+            ResultSet V_idautoria_livro = livroPreparedStatement.getGeneratedKeys();
+            long autoriaID2 = -1;
+            if(V_idautoria_livro.next()){
+                autoriaID2 = V_idautoria_livro.getLong(1);
+            }
+            autoriaPreparedStatement.setLong(2, autoriaID2);
+            //insere os dados
+            int linhasAfetadas5 = autoriaPreparedStatement.executeUpdate();
+
+            if (linhasAfetadas > 0 && linhasAfetadas2 > 0 && linhasAfetadas3 > 0 && linhasAfetadas4 > 0 && linhasAfetadas5 > 0) {
                 int total = linhasAfetadas+linhasAfetadas2+linhasAfetadas3+linhasAfetadas4;
                 System.out.println("Inserção bem-sucedida! " + total + " linha(s) inserida(s).");
                 result.setText("");
@@ -129,7 +144,7 @@ public class MainSceneController {
                 
             }
             // fecha a conexão
-            preparedStatement.close();
+            autorPreparedStatement.close();
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
